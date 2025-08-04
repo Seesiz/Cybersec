@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inscription Réussie - Système de Signatures Numériques</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      h1 {
+        color: #333;
+      }
+      .success-message {
+        color: #4caf50;
+        font-size: 18px;
+        margin: 20px 0;
+      }
+      .button {
+        display: inline-block;
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-top: 20px;
+      }
+      .button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Inscription Réussie!</h1>
+
+      <div class="success-message">
+        Votre compte a été créé avec succès et votre clé publique a été
+        enregistrée dans notre système.
+      </div>
+
+      <p>
+        Vous pouvez maintenant utiliser notre système pour signer des documents
+        numériquement.
+      </p>
+
+      <a href="{% url 'signup' %}" class="button">Retour à l'inscription</a>
+    </div>
+  </body>
+</html>

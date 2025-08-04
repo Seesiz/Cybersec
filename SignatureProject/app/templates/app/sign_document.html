@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signature de Document</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      input[type="file"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .messages {
+        margin-bottom: 20px;
+      }
+      .messages .error {
+        color: red;
+        background-color: #ffeeee;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+      .messages .success {
+        color: green;
+        background-color: #eeffee;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+      .document-content {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .signature-info {
+        background-color: #e8f4ff;
+        border: 1px solid #b8d8ff;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Signature de Document</h1>
+
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="username">Nom d'utilisateur:</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value="{{ username|default:'' }}"
+            required
+          />
+          <small>Entrez le nom d'utilisateur associé à votre clé privée</small>
+        </div>
+
+        <div class="form-group">
+          <label for="document">Fichier texte à signer:</label>
+          <input
+            type="file"
+            id="document"
+            name="document"
+            accept=".txt"
+            required
+          />
+          <small>Sélectionnez un fichier texte (.txt) à signer</small>
+        </div>
+
+        <button type="submit">Signer le document</button>
+      </form>
+
+      {% if document_content %}
+      <h2>Contenu du document</h2>
+      <div class="document-content">{{ document_content }}</div>
+
+      <h2>Informations de signature</h2>
+      <div class="signature-info">
+        <p><strong>Document:</strong> {{ document_name }}</p>
+        <p><strong>Signé par:</strong> {{ username }}</p>
+        <p><strong>Date et heure:</strong> {{ timestamp }}</p>
+        <p><strong>Fichier de signature:</strong> {{ signature_file }}</p>
+        <p>
+          <a href="{% url 'view_signature' signature_file=signature_file %}"
+            >Voir la signature</a
+          >
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>
