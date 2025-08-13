@@ -1,10 +1,11 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
-import { articles } from '../../_components/mock/article.mock'
+import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+// import { useSession } from '@/provider/session'
+import { IArticle } from '../../page'
 import { useSession } from '@/provider/session'
 
 const Page = () => {
@@ -12,30 +13,60 @@ const Page = () => {
   const [comment, setComment] = useState('')
   const { user } = useSession()
 
-  const articleIndex = articles.findIndex((article) => article.id === id)
-  const article = articles[articleIndex]
+  const [article, setArticle] = useState<IArticle | null>(null)
 
-  const handleAddComment = () => {
-    if (!comment.trim() || !user) return
-
-    articles[articleIndex].commentaire.push({
-      username: user.username,
-      message: comment,
+  useEffect(() => {
+    fetch(`http://localhost:3000/api/article/${id}`, {
+      cache: 'no-store',
     })
-
-    setComment('')
-  }
+      .then((res) => res.json())
+      .then((data) => setArticle(data))
+  }, [id])
 
   if (!article) {
     return <div>Article non trouvé</div>
   }
 
+  const handleAddComment = async () => {
+    if (!comment.trim()) return
+    try {
+      const res = await fetch('/api/comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: comment,
+          id_article: Number(id),
+          user_name: user?.username,
+        }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const created = await res.json()
+      setArticle({ ...article, comment: [...(article.comment ?? []), created] })
+      setComment('')
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleSearchComment = async () => {
+    if (!comment.trim()) return
+    try {
+      const res = await fetch(`/api/comment/search?q=${encodeURIComponent(comment)}`, {
+        method: 'GET',
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      // data.rows contient le résultat de la requête vulnérable
+      setArticle({ ...article, comment: data?.rows ?? [] })
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1>{article.title}</h1>
-        <p>{article.description}</p>
-        <p>{article.price}</p>
+        <h1>{article.label}</h1>
       </div>
 
       <p>Injection test</p>
@@ -44,7 +75,6 @@ const Page = () => {
       </p>
       <div className="flex flex-col gap-4">
         <h2>Commentaires</h2>
-
         <div className="flex flex-col gap-4 rounded-2xl border p-4">
           <div className="flex gap-2">
             <Input
@@ -52,15 +82,19 @@ const Page = () => {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
-            <Button onClick={handleAddComment}>Envoyer</Button>
+
+            <div className="flex gap-2">
+              <Button onClick={handleAddComment}>Envoyer</Button>
+              <Button onClick={handleSearchComment}>Search</Button>
+            </div>
           </div>
-          {article.commentaire.map((commentaire, index) => (
+          {article?.comment?.map((commentaire, index) => (
             <div
-              key={`${commentaire.username}-${index}`}
+              key={`${commentaire.user_name}-${index}`}
               className="flex w-fit flex-col gap-2 rounded-xl rounded-tl-none bg-gray-50 p-2 px-5"
             >
-              <b>{commentaire.username}</b>
-              <p dangerouslySetInnerHTML={{ __html: commentaire.message as string }} />
+              <b>{commentaire.user_name}</b>
+              <p dangerouslySetInnerHTML={{ __html: commentaire.content }} />
             </div>
           ))}
         </div>

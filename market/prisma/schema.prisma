@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model article {
+  id      Int       @id
+  label   String?
+  comment comment[]
+}
+
+model comment {
+  id         Int      @id @default(autoincrement())
+  content    String?
+  id_article Int?
+  user_name  String?  @db.VarChar(255)
+  article    article? @relation(fields: [id_article], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}

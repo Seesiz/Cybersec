@@ -1,16 +1,16 @@
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ArticleCardProps {
-  title: string
+  label: string
   description: string
   price: number
 }
 
-const ArticleCard: React.FC<ArticleCardProps> = ({ title, description, price }) => {
+const ArticleCard: React.FC<ArticleCardProps> = ({ label, description, price }) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{label}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardFooter>
